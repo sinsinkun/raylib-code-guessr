@@ -7,10 +7,10 @@
       "args": [
         "-fdiagnostics-color=always",
         "-g",
-        "${file}",
+        "${fileDirname}\\**.cpp",
         "-o",
-        "${fileDirname}\\build\\${fileBasenameNoExtension}.exe",
-        "-lraylib"
+        "${fileDirname}\\build\\main.exe",
+        "-lraylib",
       ],
       "options": {
         "cwd": "${fileDirname}"
