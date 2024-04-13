@@ -19,7 +19,10 @@ int main(int argc, char* argv[]) {
   // SetMasterVolume(0.2);
 
   App::EventLoop e;
-  e.font = LoadFont("assets/roboto.ttf");
+  e.font = LoadFontEx("assets/roboto.ttf", 60, 0, 0);
+  // Generate mipmap levels to use bi/trilinear filtering
+  GenTextureMipmaps(&e.font.texture);
+  SetTextureFilter(e.font.texture, TEXTURE_FILTER_BILINEAR);
 
   // --- EVENT LOOP ---
   std::cout << "Starting..." << std::endl;

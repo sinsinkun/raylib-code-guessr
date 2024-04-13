@@ -18,5 +18,6 @@ namespace App {
       void render();
     private:
       void _updateSystem();
+      void _drawFps();
   };
 }
