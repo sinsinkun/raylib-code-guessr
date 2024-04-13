@@ -1,0 +1,1 @@
+g++ -O2 -o release/main.exe **.cpp -std=c++17 -static-libstdc++ -static-libgcc -Wl,-Bstatic -Wl,--whole-archive -lpthread -Wl,-Bdynamic -Wl,--no-whole-archive -lraylib -mwindows
