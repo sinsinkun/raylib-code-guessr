@@ -9,3 +9,7 @@ Maybe immediate mode GUI
 - Copy package name that matches g++ version (default is ucrt64)
 - Install package with `pacman -S {...}`
 - (FYI: `-lraylib` flag was added to tasks.json manually)
+
+## Release
+- Release build: `g++ -O2 **.cpp -o release/main.exe -static-libstdc++ -static-libgcc -lraylib -mwindows`
+- Needs to bundle libraylib.dll and libwinpthread-1.dll
