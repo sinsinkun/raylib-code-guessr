@@ -15,6 +15,8 @@ int main(int argc, char* argv[]) {
   InitWindow(800, 600, "Test Title Please Ignore");
   // InitAudioDevice();
   SetWindowMinSize(400, 300);
+  Image icon = LoadImage("assets/logo.png");
+  SetWindowIcon(icon);
   SetTargetFPS(120);
   // SetMasterVolume(0.2);
 
