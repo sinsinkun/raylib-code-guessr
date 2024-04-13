@@ -15,14 +15,11 @@ int main(int argc, char* argv[]) {
   InitWindow(800, 600, "Test Title Please Ignore");
   // InitAudioDevice();
   SetWindowMinSize(400, 300);
-  SetTargetFPS(90);
+  SetTargetFPS(120);
   // SetMasterVolume(0.2);
 
   App::EventLoop e;
-  e.font = LoadFontEx("assets/roboto.ttf", 60, 0, 0);
-  // Generate mipmap levels to use bi/trilinear filtering
-  GenTextureMipmaps(&e.font.texture);
-  SetTextureFilter(e.font.texture, TEXTURE_FILTER_BILINEAR);
+  e.init();
 
   // --- EVENT LOOP ---
   std::cout << "Starting..." << std::endl;
@@ -34,5 +31,6 @@ int main(int argc, char* argv[]) {
 
   // --- CLEAN UP ---
   // CloseAudioDevice();
+  e.cleanup();
   CloseWindow();
 }

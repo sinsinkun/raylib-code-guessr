@@ -11,5 +11,5 @@ Maybe immediate mode GUI
 - (FYI: `-lraylib` flag was added to tasks.json manually)
 
 ## Release
-- Release build: `g++ -O2 **.cpp -o release/main.exe -static-libstdc++ -static-libgcc -lraylib -mwindows`
+- Release build: `g++ -O2 **.cpp -o release/main.exe -std=c++17 -static-libstdc++ -static-libgcc -Wl,-Bstatic -lpthread -Wl,-Bdynamic -lraylib -mwindows`
 - Needs to bundle libraylib.dll and libwinpthread-1.dll

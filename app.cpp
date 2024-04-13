@@ -3,11 +3,53 @@
 #include <vector>
 #include <raylib.h>
 #include "app.hpp"
+#include "button.hpp"
 
 using namespace App;
 
+void EventLoop::init() {
+  // initialize font
+  font = LoadFontEx("assets/roboto.ttf", 60, 0, 0);
+  // Generate mipmap levels to use bi/trilinear filtering
+  GenTextureMipmaps(&font.texture);
+  SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
+
+  // initialize button 1 
+  Asset a1;
+  a1.type = AssetType::AButton;
+  a1.btn = new Button{1};
+  a1.btn->pos = (Vector2){200.0, 200.0};
+  assets.push_back(a1);
+
+  // initialize button 2
+  Asset a2;
+  a2.type = AssetType::AButton;
+  a2.btn = new Button{2, 320.0, 200.0};
+  assets.push_back(a2);
+}
+
 void EventLoop::update() {
   _updateSystem();
+  // take inputs
+  int mouseHoverCount = 0;
+  bool mouseClicked = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+  // update assets
+  for (Asset a: assets) {
+    switch (a.type) {
+      case AssetType::AButton:
+        a.btn->update(mousePos, mouseClicked, mouseHoverCount);
+        if (a.btn->state == ButtonState::Just_Clicked) {
+          std::cout << "Clicked button " << a.btn->id << std::endl;
+        }
+        break;
+      case AssetType::ANone:
+      default:
+        break;
+    }
+  }
+  // update mouse state
+  if (mouseHoverCount > 0) SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+  else SetMouseCursor(MOUSE_CURSOR_ARROW);
 }
 
 void EventLoop::render() {
@@ -15,20 +57,39 @@ void EventLoop::render() {
     ClearBackground(BLACK);
     if (IsWindowFocused()) {
       // draw background
-      DrawRectangle(0, 0, screenW, screenH, (Color){ 55, 55, 120, 255 });
+      DrawRectangle(0, 0, screenW, screenH, (Color){80, 120, 120, 255});
 
-      // draw button
-      Rectangle rect = {50.0, 50.0, 120.0, 60.0};
-      Rectangle rectShadow = {52.0, 50.0, 122.0, 65.0};
-      DrawRectangleRounded(rectShadow, 0.5, 8, BLACK);
-      DrawRectangleRounded(rect, 0.5, 8, RED);
-      DrawText("Button", 65.0, 65.0, 28, WHITE);
+      // draw assets
+      for (Asset a: assets) {
+        switch (a.type) {
+          case AssetType::AButton:
+            a.btn->render();
+            break;
+          case AssetType::ANone:
+          default:
+            break;
+        }
+      }
     } else {
       DrawText("Pay Attention to me", screenCenter.x - 200, screenCenter.y - 40, 40, RED);
     }
     // draw FPS overlay
     _drawFps();
   EndDrawing();
+}
+
+void EventLoop::cleanup() {
+  // destroy assets
+  for (Asset a: assets) {
+    switch (a.type) {
+      case AssetType::AButton:
+        delete a.btn;
+        break;
+      case AssetType::ANone:
+      default:
+        break;
+    }
+  }
 }
 
 void EventLoop::_updateSystem() {
