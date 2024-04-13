@@ -17,14 +17,15 @@ void EventLoop::init() {
   // initialize button 1 
   Asset a1;
   a1.type = AssetType::AButton;
-  a1.btn = new Button{1};
-  a1.btn->pos = (Vector2){200.0, 200.0};
+  a1.btn = new Button{1, screenCenter.x - 73.0f, screenCenter.y - 40.0f};
+  a1.btn->text = "1";
   assets.push_back(a1);
 
   // initialize button 2
   Asset a2;
   a2.type = AssetType::AButton;
-  a2.btn = new Button{2, 320.0, 200.0};
+  a2.btn = new Button{2, screenCenter.x + 13.0f, screenCenter.y - 40.0f};
+  a2.btn->text = "2";
   assets.push_back(a2);
 }
 
@@ -37,7 +38,9 @@ void EventLoop::update() {
   for (Asset a: assets) {
     switch (a.type) {
       case AssetType::AButton:
-        a.btn->update(mousePos, mouseClicked, mouseHoverCount);
+        if (a.btn->id == 1) a.btn->updatePos((Vector2){screenCenter.x - 73.0f, screenCenter.y - 40.0f});
+        else if (a.btn->id == 2) a.btn->updatePos((Vector2){screenCenter.x + 13.0f, screenCenter.y - 40.0f});
+        a.btn->updateState(mousePos, mouseClicked, mouseHoverCount);
         if (a.btn->state == ButtonState::Just_Clicked) {
           std::cout << "Clicked button " << a.btn->id << std::endl;
         }

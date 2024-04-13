@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <raylib.h>
 
 namespace App {
@@ -27,8 +28,10 @@ namespace App {
       }
       // state
       int id = 0;
-      Vector2 size = {100.0, 40.0};
-      Vector2 pos = {0.0, 0.0};
+      Vector2 size = {60.0f, 60.0f};
+      Vector2 pos = {0.0f, 0.0f};
+      Vector2 textOffset = {18.0f, 12.0f};
+      std::string text = "";
       ButtonState state = ButtonState::None;
       bool drawShadow = true;
       Color cbgNone = {200, 200, 200, 255};
@@ -37,7 +40,8 @@ namespace App {
       Color cShadow = {0, 0, 0, 255};
       Color cText = {0, 0, 0, 255};
       // methods
-      void update(Vector2 mousePos, bool mouseClicked, int& mouseHoverCount);
+      void updateState(Vector2 mousePos, bool mouseClicked, int& mouseHoverCount);
+      void updatePos(Vector2 newPos);
       void render();
     private:
       // helper states
