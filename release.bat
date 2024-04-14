@@ -1,1 +1,2 @@
-g++ -O2 -o release/main.exe **.cpp -std=c++17 -static-libstdc++ -static-libgcc -Wl,-Bstatic -Wl,--whole-archive -lpthread -Wl,-Bdynamic -Wl,--no-whole-archive -lraylib -mwindows
+@REM Compile standalone exe with raylib source code
+g++ -O2 -o main.exe **.cpp -std=c++17 -IC:\raylib\raylib\src -Iexternal -DPLATFORM_DESKTOP -static -lraylib -lopengl32 -lgdi32 -lwinmm -mwindows
