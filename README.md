@@ -12,4 +12,5 @@ Maybe immediate mode GUI
 
 ## Release
 - Run release.bat
-- Needs to bundle libraylib.dll
+- Note: needs to have raylib sources files downloaded to default location (C:/raylib/raylib/src)
+- Can get raylib source code from https://www.raylib.com/
