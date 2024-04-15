@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
   // --- INITIALIZATION ---
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
-  InitWindow(800, 600, "Test Title Please Ignore");
+  InitWindow(400, 600, "Test Title Please Ignore");
   // InitAudioDevice();
   SetWindowMinSize(400, 300);
   Image icon = LoadImage("assets/logo.png");

@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include "app.hpp"
 #include "button.hpp"
+#include "answer.hpp"
 
 using namespace App;
 
@@ -14,19 +15,24 @@ void EventLoop::init() {
   GenTextureMipmaps(&font.texture);
   SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
 
-  // initialize button 1 
-  Asset a1;
-  a1.type = AssetType::AButton;
-  a1.btn = new Button{1, screenCenter.x - 73.0f, screenCenter.y - 40.0f};
-  a1.btn->text = "1";
-  assets.push_back(a1);
+  // initialize buttons
+  for (int i=1; i<10; i++) {
+    int di = i - 1;
+    int dj = i / 3;
+    float dx = screenCenter.x - 105.0f + (float)(di%3) * 75.0f;
+    float dy = screenCenter.y - 20.0f + (float)dj * 75.0f;
+    Asset a;
+    a.type = AssetType::AButton;
+    a.btn = new Button{i, dx, dy };
+    a.btn->text = std::to_string(i);
+    assets.push_back(a);
+  }
 
-  // initialize button 2
-  Asset a2;
-  a2.type = AssetType::AButton;
-  a2.btn = new Button{2, screenCenter.x + 13.0f, screenCenter.y - 40.0f};
-  a2.btn->text = "2";
-  assets.push_back(a2);
+  // initialize answer box
+  Asset ab;
+  ab.type = AssetType::AAnsBox;
+  ab.ansBox = new AnswerBox{0, 0};
+  assets.push_back(ab);
 }
 
 void EventLoop::update() {
@@ -37,13 +43,23 @@ void EventLoop::update() {
   // update assets
   for (Asset a: assets) {
     switch (a.type) {
-      case AssetType::AButton:
-        if (a.btn->id == 1) a.btn->updatePos((Vector2){screenCenter.x - 73.0f, screenCenter.y - 40.0f});
-        else if (a.btn->id == 2) a.btn->updatePos((Vector2){screenCenter.x + 13.0f, screenCenter.y - 40.0f});
+      case AssetType::AButton: {
+        int di = a.btn->id - 1;
+        int dj = di / 3;
+        float dx = screenCenter.x - 105.0f + (float)(di%3) * 75.0f;
+        float dy = screenCenter.y - 20.0f + (float)dj * 75.0f;
+        a.btn->updatePos((Vector2){dx, dy});
         a.btn->updateState(mousePos, mouseClicked, mouseHoverCount);
         if (a.btn->state == ButtonState::Just_Clicked) {
           std::cout << "Clicked button " << a.btn->id << std::endl;
+          // update input
+          input[inputc] = a.btn->id;
+          if (inputc < 4) inputc++;
         }
+        break;
+      }
+      case AssetType::AAnsBox:
+        a.ansBox->update(screenCenter, inputc, input);
         break;
       case AssetType::ANone:
       default:
@@ -68,6 +84,9 @@ void EventLoop::render() {
           case AssetType::AButton:
             a.btn->render();
             break;
+          case AssetType::AAnsBox:
+            a.ansBox->render();
+            break;
           case AssetType::ANone:
           default:
             break;
@@ -87,6 +106,9 @@ void EventLoop::cleanup() {
     switch (a.type) {
       case AssetType::AButton:
         delete a.btn;
+        break;
+      case AssetType::AAnsBox:
+        delete a.ansBox;
         break;
       case AssetType::ANone:
       default:
@@ -108,5 +130,5 @@ void EventLoop::_drawFps() {
   std::string fpst = std::to_string(fps);
   std::string fpstxt = "FPS: ";
   fpstxt.append(fpst);
-  DrawTextEx(font, fpstxt.c_str(), (Vector2){10.0, 10.0}, 20, 0, GREEN);
+  DrawTextEx(font, fpstxt.c_str(), (Vector2){2.0, 2.0}, 20, 0, GREEN);
 }

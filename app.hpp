@@ -1,16 +1,18 @@
 #include <vector>
 #include <raylib.h>
 #include "button.hpp"
+#include "answer.hpp"
 
 namespace App {
   enum AssetType {
     ANone,
     AButton,
-    ATexture,
+    AAnsBox,
   };
   struct Asset {
     AssetType type = AssetType::ANone;
     Button* btn;
+    AnswerBox* ansBox;
   };
 
   class EventLoop {
@@ -24,6 +26,8 @@ namespace App {
       double elapsed = 0.0;
       Vector2 mousePos = { 0.0, 0.0 };
       // memory
+      int inputc = 0;
+      int input[4] = {0, 0, 0, 0};
       std::vector<Asset> assets;
       // methods
       void init();
