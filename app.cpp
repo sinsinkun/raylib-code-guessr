@@ -51,7 +51,6 @@ void EventLoop::update() {
         a.btn->updatePos((Vector2){dx, dy});
         a.btn->updateState(mousePos, mouseClicked, mouseHoverCount);
         if (a.btn->state == ButtonState::Just_Clicked) {
-          std::cout << "Clicked button " << a.btn->id << std::endl;
           // update input
           input[inputc] = a.btn->id;
           if (inputc < 4) inputc++;
@@ -59,7 +58,7 @@ void EventLoop::update() {
         break;
       }
       case AssetType::AAnsBox:
-        a.ansBox->update(screenCenter, inputc, input);
+        a.ansBox->update(deltaTime, screenCenter, inputc, input);
         break;
       case AssetType::ANone:
       default:
@@ -93,7 +92,7 @@ void EventLoop::render() {
         }
       }
     } else {
-      DrawText("Pay Attention to me", screenCenter.x - 200, screenCenter.y - 40, 40, RED);
+      DrawText("Pay Attention to me", screenCenter.x - 170, screenCenter.y - 40, 34, RED);
     }
     // draw FPS overlay
     _drawFps();
@@ -124,6 +123,7 @@ void EventLoop::_updateSystem() {
   elapsed = GetTime();
   screenCenter = { (float)screenW/2, (float)screenH/2 };
   mousePos = GetMousePosition();
+  deltaTime = GetFrameTime();
 }
 
 void EventLoop::_drawFps() {

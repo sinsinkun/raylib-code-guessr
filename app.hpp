@@ -23,6 +23,7 @@ namespace App {
       int screenH = 0;
       Vector2 screenCenter = { 0.0, 0.0 };
       int fps = 0;
+      float deltaTime = 0.0f;
       double elapsed = 0.0;
       Vector2 mousePos = { 0.0, 0.0 };
       // memory
