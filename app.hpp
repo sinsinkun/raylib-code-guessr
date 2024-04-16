@@ -27,6 +27,7 @@ namespace App {
       double elapsed = 0.0;
       Vector2 mousePos = { 0.0, 0.0 };
       // memory
+      int score = 0;
       int inputc = 0;
       int input[4] = {0, 0, 0, 0};
       std::vector<Asset> assets;

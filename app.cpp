@@ -17,6 +17,7 @@ void EventLoop::init() {
 
   // initialize buttons
   for (int i=1; i<10; i++) {
+    std::cout << "instantiated button " << i << std::endl;
     int di = i - 1;
     int dj = i / 3;
     float dx = screenCenter.x - 105.0f + (float)(di%3) * 75.0f;
@@ -32,6 +33,7 @@ void EventLoop::init() {
   Asset ab;
   ab.type = AssetType::AAnsBox;
   ab.ansBox = new AnswerBox{0, 0};
+  ab.ansBox->init();
   assets.push_back(ab);
 }
 
@@ -52,13 +54,15 @@ void EventLoop::update() {
         a.btn->updateState(mousePos, mouseClicked, mouseHoverCount);
         if (a.btn->state == ButtonState::Just_Clicked) {
           // update input
-          input[inputc] = a.btn->id;
-          if (inputc < 4) inputc++;
+          if (inputc < 4) {
+            input[inputc] = a.btn->id;
+            inputc++;
+          }
         }
         break;
       }
       case AssetType::AAnsBox:
-        a.ansBox->update(deltaTime, screenCenter, inputc, input);
+        a.ansBox->update(deltaTime, screenCenter, inputc, input, score);
         break;
       case AssetType::ANone:
       default:
@@ -91,6 +95,13 @@ void EventLoop::render() {
             break;
         }
       }
+      
+      // draw score
+      std::string strscore = "Solved: ";
+      std::string strscorenum = std::to_string(score);
+      strscore.append(strscorenum);
+      DrawTextEx(font, strscore.c_str(), (Vector2){screenCenter.x - 60, screenCenter.y - 200}, 34, 0, BLACK);
+
     } else {
       DrawText("Pay Attention to me", screenCenter.x - 170, screenCenter.y - 40, 34, RED);
     }

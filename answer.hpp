@@ -4,11 +4,18 @@
 
 namespace App {
 
-  enum AnswerBoxAnimationState {
+  enum AnswerBoxState {
     ABNone,
-    ABRight,
-    ABWrong,
+    ABFlash
   };
+
+  const Color AB_BG = {100, 100, 100, 255};
+  const Color AB_BG0 = {200, 80, 80, 255};
+  const Color AB_BG1 = {200, 100, 40, 255};
+  const Color AB_BG2 = {200, 160, 40, 255};
+  const Color AB_BG3 = {180, 200, 20, 255};
+  const Color AB_BG4 = {80, 200, 80, 255};
+  const Color AB_SHADOW = {0, 0, 0, 255};
 
   class AnswerBox {
     public:
@@ -19,20 +26,16 @@ namespace App {
       // state
       Vector2 pos = {5, 5};
       Vector2 size = {260, 60};
-      Color bg = {100, 100, 100, 255};
-      Color bgRed = {200, 80, 80, 255};
-      Color bgGreen = {80, 200, 80, 255};
-      Color shadow = {0, 0, 0, 255};
-      int ans[4] = {2, 1, 1, 4};
+      Color fcolor = AB_BG;
+      int ans[4] = {0, 0, 0, 0};
       std::string inputDisplay = "";
       // methods
       void init();
-      void update(const float dtime, const Vector2& screenCenter, int& inputc, int (&input)[4]);
+      void update(const float dtime, const Vector2& screenCenter, int& inputc, int (&input)[4], int& score);
       void render();
     private:
       float _dt = 0.0f;
-      AnswerBoxAnimationState _anim = ABNone;
-      int animFrame = 0;
+      AnswerBoxState _state = ABNone;
       void _generateAns();
   };
 }
