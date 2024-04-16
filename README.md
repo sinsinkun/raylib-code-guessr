@@ -1,7 +1,10 @@
-# Raylib project
+# Code Guesser
 
-Project about ???
-Maybe immediate mode GUI
+Simple raylib test project (basic UI). The main goal of this project was to create a standalone
+exe with no external dependencies. The game is simple. Guess the correct code. The color of
+the input field changes based on how many correct numbers there are (in the correct position).
+
+<img src="assets/screenshot.png" alt="screenshot" height="500" />
 
 ## Installation (with MSYS2)
 - Go through setup process to get mingw compiler working with VSCode
