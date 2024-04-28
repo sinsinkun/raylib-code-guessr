@@ -6,26 +6,8 @@ namespace App {
 
   class Box {
     public:
-      Box(int iid, Vector2 ipos, Vector2 isize, Color icolor) {
-        id = iid;
-        position = ipos;
-        size = isize;
-        body = { ipos.x - isize.x/2, ipos.y - isize.y/2, isize.x, isize.y };
-        color = icolor;
-      }
-      Box(int iid, Vector2 ipos, Vector2 isize, Color icolor, float irot) {
-        id = iid;
-        position = ipos;
-        size = isize;
-        body = {
-          ipos.x - isize.x/2 * std::cos(irot * DEG2RAD) + isize.y/2 * std::sin(irot * DEG2RAD),
-          ipos.y - isize.x/2 * std::sin(irot * DEG2RAD) - isize.y/2 * std::cos(irot * DEG2RAD),
-          isize.x,
-          isize.y
-        };
-        rotation = irot;
-        color = icolor;
-      }
+      Box(int iid, Vector2 ipos, Vector2 isize, Color icolor);
+      Box(int iid, Vector2 ipos, Vector2 isize, Color icolor, float irot);
       int id;
       Vector2 position;
       Vector2 size;
@@ -38,12 +20,7 @@ namespace App {
 
   class Light {
     public:
-      Light(int iid, Vector2 ipos, float iradius, Color icolor) {
-        id = iid;
-        position = ipos;
-        radius = iradius;
-        color = icolor;
-      }
+      Light(int iid, Vector2 ipos, float iradius, Color icolor);
       int id;
       Vector2 position;
       Color color;

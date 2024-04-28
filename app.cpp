@@ -2,11 +2,34 @@
 #include <string>
 #include <vector>
 #include <raylib.h>
+#include <raymath.h>
 #include "app.hpp"
 
 using namespace App;
 
 #pragma region Box
+Box::Box(int iid, Vector2 ipos, Vector2 isize, Color icolor) {
+  id = iid;
+  position = ipos;
+  size = isize;
+  color = icolor;
+  body = { ipos.x - isize.x/2, ipos.y - isize.y/2, isize.x, isize.y };
+}
+
+Box::Box(int iid, Vector2 ipos, Vector2 isize, Color icolor, float irot) {
+  id = iid;
+  position = ipos;
+  size = isize;
+  rotation = irot;
+  color = icolor;
+  body = {
+    ipos.x - isize.x/2 * std::cos(irot * DEG2RAD) + isize.y/2 * std::sin(irot * DEG2RAD),
+    ipos.y - isize.x/2 * std::sin(irot * DEG2RAD) - isize.y/2 * std::cos(irot * DEG2RAD),
+    isize.x,
+    isize.y
+  };
+}
+
 void Box::update(Vector2 pos, float rot) {
   position = pos;
   rotation = rot;
@@ -21,6 +44,13 @@ void Box::render() {
 
 
 #pragma region Light
+Light::Light(int iid, Vector2 ipos, float iradius, Color icolor) {
+  id = iid;
+  position = ipos;
+  radius = iradius;
+  color = icolor;
+}
+
 void Light::update(Vector2 pos) {
   position = pos;
 }
@@ -48,7 +78,7 @@ void EventLoop::init() {
   Box box3 = {3, (Vector2){600.0f, 400.0f}, (Vector2){100.0f, 50.0f}, GREEN, -10.0f};
   boxes.push_back(box3);
 
-  Light light1 = {1, (Vector2){300.0f, 300.0f}, 300.0f, BLUE};
+  Light light1 = {1, (Vector2){300.0f, 300.0f}, 300.0f, PURPLE};
   lights.push_back(light1);
 }
 
@@ -57,13 +87,21 @@ void EventLoop::update() {
   // take inputs
   int mouseHoverCount = 0;
   bool mouseClicked = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+
+  Vector2 move = {0.0f, 0.0f};
+  if (IsKeyDown(KEY_A)) move.x -= 1.0f;
+  if (IsKeyDown(KEY_D)) move.x += 1.0f;
+  if (IsKeyDown(KEY_W)) move.y -= 1.0f;
+  if (IsKeyDown(KEY_S)) move.y += 1.0f;
+
   // update assets
   // for (Box& b: boxes) {
   //   b.update();
   // }
-  // for (Light& l: lights) {
-  //   l.update();
-  // }
+  for (Light& l: lights) {
+    Vector2 abs = { l.position.x + move.x, l.position.y + move.y };
+    l.update(abs);
+  }
 
   // update mouse state
   if (mouseHoverCount > 0) SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
@@ -75,6 +113,8 @@ void EventLoop::render() {
   // TODO: light buffer/normal buffer
   BeginDrawing();
     ClearBackground(BLACK);
+    // draw background/ambient light
+    DrawRectangle(0, 0, screenW, screenH, (Color){20,10,20,255});
 
     // draw assets
     for (Box& b: boxes) {
