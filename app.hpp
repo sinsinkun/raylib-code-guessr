@@ -1,18 +1,56 @@
 #include <vector>
+#include <math.h>
 #include <raylib.h>
-#include "button.hpp"
-#include "answer.hpp"
 
 namespace App {
-  enum AssetType {
-    ANone,
-    AButton,
-    AAnsBox,
+
+  class Box {
+    public:
+      Box(int iid, Vector2 ipos, Vector2 isize, Color icolor) {
+        id = iid;
+        position = ipos;
+        size = isize;
+        body = { ipos.x - isize.x/2, ipos.y - isize.y/2, isize.x, isize.y };
+        color = icolor;
+      }
+      Box(int iid, Vector2 ipos, Vector2 isize, Color icolor, float irot) {
+        id = iid;
+        position = ipos;
+        size = isize;
+        body = {
+          ipos.x - isize.x/2 * std::cos(irot * DEG2RAD) + isize.y/2 * std::sin(irot * DEG2RAD),
+          ipos.y - isize.x/2 * std::sin(irot * DEG2RAD) - isize.y/2 * std::cos(irot * DEG2RAD),
+          isize.x,
+          isize.y
+        };
+        rotation = irot;
+        color = icolor;
+      }
+      int id;
+      Vector2 position;
+      Vector2 size;
+      Rectangle body;
+      float rotation = 0.0f;
+      Color color;
+      void update(Vector2 pos, float rot);
+      void render();
   };
-  struct Asset {
-    AssetType type = AssetType::ANone;
-    Button* btn;
-    AnswerBox* ansBox;
+
+  class Light {
+    public:
+      Light(int iid, Vector2 ipos, float iradius, Color icolor) {
+        id = iid;
+        position = ipos;
+        radius = iradius;
+        color = icolor;
+      }
+      int id;
+      Vector2 position;
+      Color color;
+      int intensity;
+      float radius;
+      void update(Vector2 pos);
+      void render();
   };
 
   class EventLoop {
@@ -27,10 +65,8 @@ namespace App {
       double elapsed = 0.0;
       Vector2 mousePos = { 0.0, 0.0 };
       // memory
-      int score = 0;
-      int inputc = 0;
-      int input[4] = {0, 0, 0, 0};
-      std::vector<Asset> assets;
+      std::vector<Box> boxes;
+      std::vector<Light> lights;
       // methods
       void init();
       void update();

@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
   // --- INITIALIZATION ---
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   SetConfigFlags(FLAG_MSAA_4X_HINT);
-  InitWindow(400, 600, "Code Guessr");
+  InitWindow(800, 600, "Deferred Rendering");
   // InitAudioDevice();
   SetWindowMinSize(400, 300);
   Image icon = LoadImage("assets/logo.png");
