@@ -16,6 +16,7 @@ Box::Box(int iid, Vector2 ipos, Vector2 isize, Color icolor) {
   body = { ipos.x - isize.x/2, ipos.y - isize.y/2, isize.x, isize.y };
   shader = LoadShader("assets/box.vs", "assets/box.fs");
   target = LoadRenderTexture(isize.x, isize.y);
+  SetTextureWrap(target.texture, TEXTURE_WRAP_CLAMP);
 }
 
 Box::Box(int iid, Vector2 ipos, Vector2 isize, Color icolor, float irot) {
@@ -32,6 +33,7 @@ Box::Box(int iid, Vector2 ipos, Vector2 isize, Color icolor, float irot) {
   };
   shader = LoadShader("assets/box.vs", "assets/box.fs");
   target = LoadRenderTexture(isize.x, isize.y);
+  SetTextureWrap(target.texture, TEXTURE_WRAP_CLAMP);
 }
 
 void Box::update(Vector2 pos, float rot) {
@@ -78,9 +80,9 @@ Light::Light(int iid, Vector2 ipos, float iradius, Color icolor, float iintensit
   shaderLoc[1] = GetShaderLocation(shader, "lightIntensity");
   shaderLoc[2] = GetShaderLocation(shader, "lightRadius");
   shaderLoc[3] = GetShaderLocation(shader, "lightColor");
-  shaderLoc[4] = GetShaderLocation(shader, "screenSize");
   // load buffer
   lightBuffer = LoadRenderTexture(800, 600);
+  SetTextureWrap(lightBuffer.texture, TEXTURE_WRAP_CLAMP);
 }
 
 void Light::update(Vector2 pos) {
@@ -88,14 +90,18 @@ void Light::update(Vector2 pos) {
 }
 
 void Light::updateShader(int screenW, int screenH) {
-  float scr[2] = { (float)screenW, (float)screenH };
+  // update render textures
+  if (lightBuffer.texture.width != screenW || lightBuffer.texture.height != screenH) {
+    UnloadRenderTexture(lightBuffer);
+    lightBuffer = LoadRenderTexture(screenW, screenH);
+    SetTextureWrap(lightBuffer.texture, TEXTURE_WRAP_CLAMP);
+  }
   float pos[2] = { position.x, (float)screenH - position.y };
   float clr[3] = { (float)color.r / 255, (float)color.g / 255, (float)color.b / 255 };
   SetShaderValue(shader, shaderLoc[0], pos, SHADER_UNIFORM_VEC2);
   SetShaderValue(shader, shaderLoc[1], &intensity, SHADER_UNIFORM_FLOAT);
   SetShaderValue(shader, shaderLoc[2], &radius, SHADER_UNIFORM_FLOAT);
   SetShaderValue(shader, shaderLoc[3], clr, SHADER_UNIFORM_VEC3);
-  SetShaderValue(shader, shaderLoc[4], scr, SHADER_UNIFORM_VEC2);
 }
 
 void Light::render() {
@@ -120,7 +126,9 @@ void EventLoop::init() {
 
   // initialize g-buffer
   gBufferColor = LoadRenderTexture(800, 600);
+  SetTextureWrap(gBufferColor.texture, TEXTURE_WRAP_CLAMP);
   gBufferNormal = LoadRenderTexture(800, 600);
+  SetTextureWrap(gBufferNormal.texture, TEXTURE_WRAP_CLAMP);
 
   // initialize assets
   Box box1 = {1, (Vector2){400.0f, 100.0f}, (Vector2){200.0f, 100.0f}, RED};
@@ -158,6 +166,16 @@ void EventLoop::update() {
     Vector2 absPos = { l.position.x + move.x, l.position.y + move.y };
     l.update(absPos);
     l.updateShader(screenW, screenH);
+  }
+
+  // update render textures
+  if (gBufferColor.texture.width != screenW || gBufferColor.texture.height != screenH) {
+    UnloadRenderTexture(gBufferColor);
+    gBufferColor = LoadRenderTexture(screenW, screenH);
+    SetTextureWrap(gBufferColor.texture, TEXTURE_WRAP_CLAMP);
+    UnloadRenderTexture(gBufferNormal);
+    gBufferNormal = LoadRenderTexture(screenW, screenH);
+    SetTextureWrap(gBufferNormal.texture, TEXTURE_WRAP_CLAMP);
   }
 
   // update mouse state

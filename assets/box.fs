@@ -10,6 +10,8 @@ out vec4 finalColor;
 void main() {
   float r = 1.0 - step(fragPos.x, 1.0 - fragPos.y);
   float g = 1.0 - step(fragPos.x, fragPos.y);
+  // float r = 0.2 + 0.3 * step(0.2, fragPos.x) + 0.2 * step(0.8, fragPos.x);
+  // float g = 0.2 + 0.3 * step(0.2, fragPos.y) + 0.2 * step(0.8, fragPos.y);
   float b = 0.5;
   
   vec3 color = vec3(r,g,b);

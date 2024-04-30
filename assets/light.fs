@@ -12,7 +12,6 @@ uniform vec2 lightPos;
 uniform float lightIntensity;
 uniform float lightRadius;
 uniform vec3 lightColor;
-uniform vec2 screenSize;
 
 out vec4 finalColor;
 
@@ -27,8 +26,8 @@ void main() {
 
   // diffuse
   vec4 normal = texture(texture0, fragTexCoord);
-  vec2 lightDir = normalize(lightPos - gl_FragCoord.xy);
-  float diffuse = lightIntensity * max(dot(normal.xy, lightDir), 0.0);
+  vec3 lightDir = normalize(vec3(lightPos, 1.0) - gl_FragCoord.xyz);
+  float diffuse = lightIntensity * max(dot(normal.xyz, lightDir), 0.0);
   vec3 diffuseColor = diffuse * lightColor;
 
   // output color
