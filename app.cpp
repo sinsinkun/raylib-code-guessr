@@ -14,6 +14,8 @@ Box::Box(int iid, Vector2 ipos, Vector2 isize, Color icolor) {
   size = isize;
   color = icolor;
   body = { ipos.x - isize.x/2, ipos.y - isize.y/2, isize.x, isize.y };
+  shader = LoadShader("assets/box.vs", "assets/box.fs");
+  target = LoadRenderTexture(isize.x, isize.y);
 }
 
 Box::Box(int iid, Vector2 ipos, Vector2 isize, Color icolor, float irot) {
@@ -28,6 +30,8 @@ Box::Box(int iid, Vector2 ipos, Vector2 isize, Color icolor, float irot) {
     isize.x,
     isize.y
   };
+  shader = LoadShader("assets/box.vs", "assets/box.fs");
+  target = LoadRenderTexture(isize.x, isize.y);
 }
 
 void Box::update(Vector2 pos, float rot) {
@@ -37,8 +41,26 @@ void Box::update(Vector2 pos, float rot) {
   body.y = pos.y - size.x/2 * std::sin(rot * DEG2RAD) - size.y/2 * std::cos(rot * DEG2RAD);
 }
 
+void Box::updateTexture() {
+  BeginTextureMode(target);
+    BeginShaderMode(shader);
+      DrawRectangle(0, 0, size.x, size.y, color);
+    EndShaderMode();
+  EndTextureMode();
+}
+
 void Box::render() {
   DrawRectanglePro(body, (Vector2){0, 0}, rotation, color);
+}
+
+void Box::renderNormal() {
+  Rectangle source = {0.0f, 0.0f, size.x, size.y};
+  DrawTexturePro(target.texture, source, body, (Vector2){0.0f, 0.0f}, rotation, WHITE);
+}
+
+void Box::cleanup() {
+  UnloadShader(shader);
+  UnloadRenderTexture(target);
 }
 #pragma endregion Box
 
@@ -73,9 +95,9 @@ void EventLoop::init() {
   // initialize assets
   Box box1 = {1, (Vector2){400.0f, 100.0f}, (Vector2){200.0f, 100.0f}, RED};
   boxes.push_back(box1);
-  Box box2 = {2, (Vector2){200.0f, 400.0f}, (Vector2){100.0f, 50.0f}, BLUE, 10.0f};
+  Box box2 = {2, (Vector2){200.0f, 400.0f}, (Vector2){160.0f, 80.0f}, BLUE, 10.0f};
   boxes.push_back(box2);
-  Box box3 = {3, (Vector2){600.0f, 400.0f}, (Vector2){100.0f, 50.0f}, GREEN, -10.0f};
+  Box box3 = {3, (Vector2){600.0f, 400.0f}, (Vector2){160.0f, 80.0f}, GREEN, -10.0f};
   boxes.push_back(box3);
 
   Light light1 = {1, (Vector2){300.0f, 300.0f}, 300.0f, PURPLE};
@@ -95,9 +117,9 @@ void EventLoop::update() {
   if (IsKeyDown(KEY_S)) move.y += 1.0f;
 
   // update assets
-  // for (Box& b: boxes) {
-  //   b.update();
-  // }
+  for (Box& b: boxes) {
+    b.updateTexture();
+  }
   for (Light& l: lights) {
     Vector2 abs = { l.position.x + move.x, l.position.y + move.y };
     l.update(abs);
@@ -118,7 +140,7 @@ void EventLoop::render() {
 
     // draw assets
     for (Box& b: boxes) {
-      b.render();
+      b.renderNormal();
     }
     for (Light& l: lights) {
       l.render();
@@ -131,6 +153,9 @@ void EventLoop::render() {
 
 void EventLoop::cleanup() {
   // destroy assets
+  for (Box& b: boxes) {
+    b.cleanup();
+  }
 }
 
 void EventLoop::_updateSystem() {

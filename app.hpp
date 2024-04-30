@@ -15,7 +15,13 @@ namespace App {
       float rotation = 0.0f;
       Color color;
       void update(Vector2 pos, float rot);
+      void updateTexture();
       void render();
+      void renderNormal();
+      void cleanup();
+    private:
+      Shader shader;
+      RenderTexture2D target;
   };
 
   class Light {
