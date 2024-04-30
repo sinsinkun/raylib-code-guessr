@@ -26,14 +26,19 @@ namespace App {
 
   class Light {
     public:
-      Light(int iid, Vector2 ipos, float iradius, Color icolor);
+      Light(int iid, Vector2 ipos, float iradius, Color icolor, float iintensity);
       int id;
       Vector2 position;
       Color color;
-      int intensity;
+      float intensity = 1.0f;
       float radius;
       void update(Vector2 pos);
+      void updateShader(int screenW, int screenH);
       void render();
+      void cleanup();
+      Shader shader;
+      int shaderLoc[5];
+      RenderTexture2D lightBuffer;
   };
 
   class EventLoop {
@@ -50,6 +55,8 @@ namespace App {
       // memory
       std::vector<Box> boxes;
       std::vector<Light> lights;
+      RenderTexture2D gBufferColor;
+      RenderTexture2D gBufferNormal;
       // methods
       void init();
       void update();
@@ -58,5 +65,6 @@ namespace App {
     private:
       void _updateSystem();
       void _drawFps();
+      void _drawDebug();
   };
 }

@@ -66,20 +66,46 @@ void Box::cleanup() {
 
 
 #pragma region Light
-Light::Light(int iid, Vector2 ipos, float iradius, Color icolor) {
+Light::Light(int iid, Vector2 ipos, float iradius, Color icolor, float iintensity) {
   id = iid;
   position = ipos;
   radius = iradius;
   color = icolor;
+  intensity = iintensity;
+  // load shader
+  shader = LoadShader("assets/light.vs", "assets/light.fs");
+  shaderLoc[0] = GetShaderLocation(shader, "lightPos");
+  shaderLoc[1] = GetShaderLocation(shader, "lightIntensity");
+  shaderLoc[2] = GetShaderLocation(shader, "lightRadius");
+  shaderLoc[3] = GetShaderLocation(shader, "lightColor");
+  shaderLoc[4] = GetShaderLocation(shader, "screenSize");
+  // load buffer
+  lightBuffer = LoadRenderTexture(800, 600);
 }
 
 void Light::update(Vector2 pos) {
   position = pos;
 }
 
+void Light::updateShader(int screenW, int screenH) {
+  float scr[2] = { (float)screenW, (float)screenH };
+  float pos[2] = { position.x, (float)screenH - position.y };
+  float clr[3] = { (float)color.r / 255, (float)color.g / 255, (float)color.b / 255 };
+  SetShaderValue(shader, shaderLoc[0], pos, SHADER_UNIFORM_VEC2);
+  SetShaderValue(shader, shaderLoc[1], &intensity, SHADER_UNIFORM_FLOAT);
+  SetShaderValue(shader, shaderLoc[2], &radius, SHADER_UNIFORM_FLOAT);
+  SetShaderValue(shader, shaderLoc[3], clr, SHADER_UNIFORM_VEC3);
+  SetShaderValue(shader, shaderLoc[4], scr, SHADER_UNIFORM_VEC2);
+}
+
 void Light::render() {
   DrawCircle(position.x, position.y, 4.0f, color);
   DrawCircleLines(position.x, position.y, radius, (Color){color.r, color.g, color.b, 100});
+}
+
+void Light::cleanup() {
+  UnloadShader(shader);
+  UnloadRenderTexture(lightBuffer);
 }
 #pragma endregion Light
 
@@ -92,6 +118,10 @@ void EventLoop::init() {
   GenTextureMipmaps(&font.texture);
   SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
 
+  // initialize g-buffer
+  gBufferColor = LoadRenderTexture(800, 600);
+  gBufferNormal = LoadRenderTexture(800, 600);
+
   // initialize assets
   Box box1 = {1, (Vector2){400.0f, 100.0f}, (Vector2){200.0f, 100.0f}, RED};
   boxes.push_back(box1);
@@ -100,8 +130,12 @@ void EventLoop::init() {
   Box box3 = {3, (Vector2){600.0f, 400.0f}, (Vector2){160.0f, 80.0f}, GREEN, -10.0f};
   boxes.push_back(box3);
 
-  Light light1 = {1, (Vector2){300.0f, 300.0f}, 300.0f, PURPLE};
+  Light light1 = {1, (Vector2){300.0f, 300.0f}, 300.0f, PURPLE, 0.5};
   lights.push_back(light1);
+  Light light2 = {2, (Vector2){500.0f, 200.0f}, 100.0f, GREEN, 0.5};
+  lights.push_back(light2);
+  Light light3 = {2, (Vector2){100.0f, 200.0f}, 200.0f, BLUE, 0.5};
+  lights.push_back(light3);
 }
 
 void EventLoop::update() {
@@ -121,8 +155,9 @@ void EventLoop::update() {
     b.updateTexture();
   }
   for (Light& l: lights) {
-    Vector2 abs = { l.position.x + move.x, l.position.y + move.y };
-    l.update(abs);
+    Vector2 absPos = { l.position.x + move.x, l.position.y + move.y };
+    l.update(absPos);
+    l.updateShader(screenW, screenH);
   }
 
   // update mouse state
@@ -131,21 +166,59 @@ void EventLoop::update() {
 }
 
 void EventLoop::render() {
-  // TODO: color buffer
-  // TODO: light buffer/normal buffer
-  BeginDrawing();
+  Rectangle src = {0, 0, (float)gBufferColor.texture.width, -(float)gBufferColor.texture.height};
+  Rectangle dest = {0, 0, (float)screenW, (float)screenH};
+  // color buffer
+  BeginTextureMode(gBufferColor);
     ClearBackground(BLACK);
     // draw background/ambient light
-    DrawRectangle(0, 0, screenW, screenH, (Color){20,10,20,255});
-
-    // draw assets
+    DrawRectangle(0, 0, screenW, screenH, (Color){200,100,100,255});
+    for (Box& b: boxes) {
+      b.render();
+    }
+  EndTextureMode();
+  // normal buffer
+  BeginTextureMode(gBufferNormal);
+    ClearBackground(BLACK);
     for (Box& b: boxes) {
       b.renderNormal();
     }
+  EndTextureMode();
+  // generate light buffers
+  for (Light& l: lights) {
+    BeginTextureMode(l.lightBuffer);
+      BeginShaderMode(l.shader);
+        DrawTexturePro(gBufferNormal.texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+      EndShaderMode();
+    EndTextureMode();
+  }
+  // add all light buffers together
+  BeginTextureMode(gBufferNormal);
+    ClearBackground(BLACK);
+  EndTextureMode();
+  for (Light& l: lights) {
+    BeginTextureMode(gBufferNormal);
+      DrawTexturePro(gBufferNormal.texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+      BeginBlendMode(BLEND_ADDITIVE);
+        DrawTexturePro(l.lightBuffer.texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+      EndBlendMode();
+    EndTextureMode();
+  }
+
+  BeginDrawing();
+    ClearBackground(BLACK);
+    // draw color texture
+    DrawTexturePro(gBufferColor.texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+    // multiply by light
+    BeginBlendMode(BLEND_MULTIPLIED);
+      DrawTexturePro(gBufferNormal.texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+    EndBlendMode();
+
+    // draw lights
     for (Light& l: lights) {
       l.render();
     }
-    
+    _drawDebug();
     // draw FPS overlay
     _drawFps();
   EndDrawing();
@@ -156,6 +229,11 @@ void EventLoop::cleanup() {
   for (Box& b: boxes) {
     b.cleanup();
   }
+  for (Light& l: lights) {
+    l.cleanup();
+  }
+  UnloadRenderTexture(gBufferColor);
+  UnloadRenderTexture(gBufferNormal);
 }
 
 void EventLoop::_updateSystem() {
@@ -173,5 +251,11 @@ void EventLoop::_drawFps() {
   std::string fpstxt = "FPS: ";
   fpstxt.append(fpst);
   DrawTextEx(font, fpstxt.c_str(), (Vector2){2.0, 2.0}, 20, 0, GREEN);
+}
+
+void EventLoop::_drawDebug() {
+  Rectangle src = {0, 0, (float)gBufferColor.texture.width, -(float)gBufferColor.texture.height};
+  Rectangle dest = {0, 0, (float)screenW/4, (float)screenH/4};
+  DrawTexturePro(gBufferNormal.texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
 }
 #pragma endregion EventLoop
