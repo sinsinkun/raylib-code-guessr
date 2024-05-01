@@ -138,11 +138,11 @@ void EventLoop::init() {
   Box box3 = {3, (Vector2){600.0f, 400.0f}, (Vector2){160.0f, 80.0f}, GREEN, -10.0f};
   boxes.push_back(box3);
 
-  Light light1 = {1, (Vector2){300.0f, 100.0f}, 400.0f, PURPLE, 0.2};
+  Light light1 = {1, (Vector2){300.0f, 200.0f}, 300.0f, WHITE, 0.5};
   lights.push_back(light1);
-  Light light2 = {2, (Vector2){500.0f, 500.0f}, 200.0f, WHITE, 0.5};
+  Light light2 = {2, (Vector2){500.0f, 500.0f}, 100.0f, YELLOW, 0.8};
   lights.push_back(light2);
-  Light light3 = {2, (Vector2){100.0f, 500.0f}, 200.0f, YELLOW, 0.5};
+  Light light3 = {2, (Vector2){100.0f, 500.0f}, 200.0f, PURPLE, 0.5};
   lights.push_back(light3);
 }
 
