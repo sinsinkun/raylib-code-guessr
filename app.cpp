@@ -106,7 +106,7 @@ void Light::updateShader(int screenW, int screenH) {
 
 void Light::render() {
   DrawCircle(position.x, position.y, 4.0f, color);
-  DrawCircleLines(position.x, position.y, radius, (Color){color.r, color.g, color.b, 100});
+  DrawCircleLines(position.x, position.y, radius, (Color){color.r, color.g, color.b, 50});
 }
 
 void Light::cleanup() {
@@ -138,11 +138,11 @@ void EventLoop::init() {
   Box box3 = {3, (Vector2){600.0f, 400.0f}, (Vector2){160.0f, 80.0f}, GREEN, -10.0f};
   boxes.push_back(box3);
 
-  Light light1 = {1, (Vector2){300.0f, 300.0f}, 300.0f, PURPLE, 0.5};
+  Light light1 = {1, (Vector2){300.0f, 100.0f}, 400.0f, PURPLE, 0.2};
   lights.push_back(light1);
-  Light light2 = {2, (Vector2){500.0f, 200.0f}, 100.0f, GREEN, 0.5};
+  Light light2 = {2, (Vector2){500.0f, 500.0f}, 200.0f, WHITE, 0.5};
   lights.push_back(light2);
-  Light light3 = {2, (Vector2){100.0f, 200.0f}, 200.0f, BLUE, 0.5};
+  Light light3 = {2, (Vector2){100.0f, 500.0f}, 200.0f, YELLOW, 0.5};
   lights.push_back(light3);
 }
 
@@ -236,7 +236,7 @@ void EventLoop::render() {
     for (Light& l: lights) {
       l.render();
     }
-    _drawDebug();
+    // _drawDebug();
     // draw FPS overlay
     _drawFps();
   EndDrawing();

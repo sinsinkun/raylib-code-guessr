@@ -17,7 +17,7 @@ out vec4 finalColor;
 
 void main() {
   // ambience
-  vec3 ambientColor = 0.1 * lightColor;
+  vec3 ambientColor = 0.04 * lightColor;
   
   // falloff from center
   float dist = distance(lightPos, gl_FragCoord.xy); // not normalized
@@ -26,8 +26,12 @@ void main() {
 
   // diffuse
   vec4 normal = texture(texture0, fragTexCoord);
-  vec3 lightDir = normalize(vec3(lightPos, 1.0) - gl_FragCoord.xyz);
-  float diffuse = lightIntensity * max(dot(normal.xyz, lightDir), 0.0);
+  if (normal.z > 0.49) {
+    // only redistribute normals for coordinates with a valid z normal
+    normal = 2.0 * normal - 1.0;
+  }
+  vec2 lightDir = normalize(lightPos - gl_FragCoord.xy);
+  float diffuse = lightIntensity * volume * max(dot(lightDir, normal.xy), 0.0);
   vec3 diffuseColor = diffuse * lightColor;
 
   // output color
