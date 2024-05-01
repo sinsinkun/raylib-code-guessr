@@ -131,18 +131,18 @@ void EventLoop::init() {
   SetTextureWrap(gBufferNormal.texture, TEXTURE_WRAP_CLAMP);
 
   // initialize assets
-  Box box1 = {1, (Vector2){400.0f, 100.0f}, (Vector2){200.0f, 100.0f}, RED};
+  Box box1 = {1, (Vector2){400.0f, 100.0f}, (Vector2){200.0f, 100.0f}, BLUE};
   boxes.push_back(box1);
-  Box box2 = {2, (Vector2){200.0f, 400.0f}, (Vector2){160.0f, 80.0f}, BLUE, 10.0f};
+  Box box2 = {2, (Vector2){200.0f, 400.0f}, (Vector2){160.0f, 80.0f}, GRAY, 10.0f};
   boxes.push_back(box2);
   Box box3 = {3, (Vector2){600.0f, 400.0f}, (Vector2){160.0f, 80.0f}, GREEN, -10.0f};
   boxes.push_back(box3);
 
-  Light light1 = {1, (Vector2){300.0f, 200.0f}, 300.0f, WHITE, 0.5};
+  Light light1 = {1, (Vector2){300.0f, 300.0f}, 400.0f, WHITE, 0.6};
   lights.push_back(light1);
   Light light2 = {2, (Vector2){500.0f, 500.0f}, 100.0f, YELLOW, 0.8};
   lights.push_back(light2);
-  Light light3 = {2, (Vector2){100.0f, 500.0f}, 200.0f, PURPLE, 0.5};
+  Light light3 = {3, (Vector2){100.0f, 500.0f}, 200.0f, RED, 0.5};
   lights.push_back(light3);
 }
 
@@ -186,21 +186,48 @@ void EventLoop::update() {
 void EventLoop::render() {
   Rectangle src = {0, 0, (float)gBufferColor.texture.width, -(float)gBufferColor.texture.height};
   Rectangle dest = {0, 0, (float)screenW, (float)screenH};
+  _updateBuffers(src, dest);
+
+  BeginDrawing();
+    ClearBackground(BLACK);
+    // draw color texture
+    DrawTexturePro(gBufferColor.texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+    // multiply by light
+    BeginBlendMode(BLEND_MULTIPLIED);
+      DrawTexturePro(gBufferNormal.texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+    EndBlendMode();
+
+    // draw lights
+    for (Light& l: lights) l.render();
+    // draw FPS overlay
+    _drawFps();
+  EndDrawing();
+}
+
+void EventLoop::cleanup() {
+  // destroy assets
+  for (Box& b: boxes) {
+    b.cleanup();
+  }
+  for (Light& l: lights) {
+    l.cleanup();
+  }
+  UnloadRenderTexture(gBufferColor);
+  UnloadRenderTexture(gBufferNormal);
+}
+
+void EventLoop::_updateBuffers(Rectangle& src, Rectangle& dest) {
   // color buffer
   BeginTextureMode(gBufferColor);
     ClearBackground(BLACK);
-    // draw background/ambient light
-    DrawRectangle(0, 0, screenW, screenH, (Color){200,100,100,255});
-    for (Box& b: boxes) {
-      b.render();
-    }
+    // draw background
+    DrawRectangle(0, 0, screenW, screenH, (Color){100,100,160,255});
+    for (Box& b: boxes) b.render();
   EndTextureMode();
   // normal buffer
   BeginTextureMode(gBufferNormal);
     ClearBackground(BLACK);
-    for (Box& b: boxes) {
-      b.renderNormal();
-    }
+    for (Box& b: boxes) b.renderNormal();
   EndTextureMode();
   // generate light buffers
   for (Light& l: lights) {
@@ -222,36 +249,6 @@ void EventLoop::render() {
       EndBlendMode();
     EndTextureMode();
   }
-
-  BeginDrawing();
-    ClearBackground(BLACK);
-    // draw color texture
-    DrawTexturePro(gBufferColor.texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
-    // multiply by light
-    BeginBlendMode(BLEND_MULTIPLIED);
-      DrawTexturePro(gBufferNormal.texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
-    EndBlendMode();
-
-    // draw lights
-    for (Light& l: lights) {
-      l.render();
-    }
-    // _drawDebug();
-    // draw FPS overlay
-    _drawFps();
-  EndDrawing();
-}
-
-void EventLoop::cleanup() {
-  // destroy assets
-  for (Box& b: boxes) {
-    b.cleanup();
-  }
-  for (Light& l: lights) {
-    l.cleanup();
-  }
-  UnloadRenderTexture(gBufferColor);
-  UnloadRenderTexture(gBufferNormal);
 }
 
 void EventLoop::_updateSystem() {

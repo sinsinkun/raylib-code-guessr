@@ -63,6 +63,7 @@ namespace App {
       void render();
       void cleanup();
     private:
+      void _updateBuffers(Rectangle& src, Rectangle& dest);
       void _updateSystem();
       void _drawFps();
       void _drawDebug();

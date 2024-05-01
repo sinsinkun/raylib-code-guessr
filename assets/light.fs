@@ -17,12 +17,14 @@ out vec4 finalColor;
 
 void main() {
   // ambience
-  vec3 ambientColor = 0.04 * lightColor;
+  vec3 ambientColor = 0.05 * lightColor;
   
   // falloff from center
   float dist = distance(lightPos, gl_FragCoord.xy); // not normalized
   float volume = max((lightRadius - dist) / lightRadius, 0.0);
   vec3 volumetricColor = lightIntensity * volume * lightColor;
+  // clamp volumetricColor to light bands
+	// volumetricColor = floor(volumetricColor * 6)/6;
 
   // diffuse
   vec4 normal = texture(texture0, fragTexCoord);
@@ -33,6 +35,8 @@ void main() {
   vec3 lightDir = normalize(vec3(lightPos, 10.0) - gl_FragCoord.xyz);
   float diffuse = lightIntensity * volume * max(dot(lightDir, normal.xyz), 0.0);
   vec3 diffuseColor = diffuse * lightColor;
+  // clamp diffuseColor to light bands
+	// diffuseColor = floor(diffuseColor * 6)/6;
 
   // output color
   vec3 color = ambientColor + volumetricColor + diffuseColor;
