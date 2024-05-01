@@ -30,8 +30,8 @@ void main() {
     // only redistribute normals for coordinates with a valid z normal
     normal = 2.0 * normal - 1.0;
   }
-  vec2 lightDir = normalize(lightPos - gl_FragCoord.xy);
-  float diffuse = lightIntensity * volume * max(dot(lightDir, normal.xy), 0.0);
+  vec3 lightDir = normalize(vec3(lightPos, 10.0) - gl_FragCoord.xyz);
+  float diffuse = lightIntensity * volume * max(dot(lightDir, normal.xyz), 0.0);
   vec3 diffuseColor = diffuse * lightColor;
 
   // output color
